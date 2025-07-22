@@ -41,3 +41,24 @@ C++ 알고리즘 및 기타 지식 메모장
    하나의 클래스에 오직 하나의 인스턴스만 가지는 패턴. 생성자를 외부 호출 불가하도록 private으로 제한.
    static 멤버 함수를 통해서만 인스턴스에 접근 가능.
    전역 변수는 객체생성 시점이 예측 불가하고 여러 파일에서 무분별하게 접근 가능한 것과 달리, 싱글톤은 클래스(캡슐화)로 감싸서 관리하므로 생성, 파괴 시점이 명확하다. 객체지향적으로 하나뿐인 인스턴스를 제공하기에 유지보수성 매우 좋음. 커널 개발에서는 프로젝트 전체에서 단 한 번만 생성/사용되어야 하는 자원에서 꼭 사용함.
+   
+         class MySingleton {
+            private:
+            MySingleton() {} // 생성자는 private
+            MySingleton(const MySingleton&) = delete; // 복사 생성자 삭제(복사 불가능)
+            MySingleton& operator=(const MySingleton&) = delete; // 대입 연산자 삭제(대입 불가능)
+            
+            public:(실제로 불릴 때 동작하는 기능)(아래 줄 보면 getInstance() 자체가 class의 참조 형태로 나타나며, 그 결과가 instance임.
+            static MySingleton& getInstance() {
+            static MySingleton instance; //클래스 내에서 한 번만 생성되고 프로그램 종료까지 살아있는 '싱글톤 객체'
+            return instance;   // 그 주소를 참조(&)로 리턴.
+            }
+            
+            void someMethod() {
+            // 싱글톤 객체의 멤버 함수
+            }
+            };
+            
+            // 사용 예시 : 좌변은 Mysingleton class의 참조로 singleton이라는 별명을 짓는 것. 우변은 class에서 getInstance()함수 실행. 이를 통해 우변은 싱글톤 객체 참조를 반환. 즉, singleton은 클래스 인스턴스를 직접 가리키며, instance 그 자체의 다른 이름(별명)이라고 생각하면 된다.
+            MySingleton& singleton = MySingleton::getInstance();
+            singleton.someMethod();   //instance의 별명이니까, singleton은 Mysingleton 객체이고, 그 객체의 함수가 실행되는 것.
