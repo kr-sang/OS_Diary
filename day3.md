@@ -13,3 +13,57 @@ _declspec(naked) void multiboot_entry(void){} 형태로 진행된다. 이 함수
 정의값은 0x1BADB002이다.
 커널임을 확정지었다면 멀티부트 헤더값 중 엔트리 주소값을 담은 멤버값을 읽어와 해당 주소로 점프한다. 이는 kernel_entry: 레이블이 존재하는 부분이며 여기서부터 실제 커널코드가 실행된다.
 이 어셈블리 코드에서 커널 스택을 초기화하고 멀티부트 정보를 담은 구조체 주소와 매직넘버를 stack에 담아서 실제 커널 엔트리인 kmain을 호출한다.
+여기서부터는 C++ 플로우 차트를 그려보면 좋다. 지금은 간단한 형태이니 설명해 보겠다.
+kmain.cpp 코드는 아래와 같다.
+#include "kmain.h"
+
+_declspec(naked) void multiboot_entry(void)
+{
+	__asm {
+		align 4
+  
+		multiboot_header:
+		//멀티부트 헤더 사이즈 : 0X20
+		dd(MULTIBOOT_HEADER_MAGIC); magic number
+		dd(MULTIBOOT_HEADER_FLAGS); flags
+		dd(CHECKSUM); checksum
+		dd(HEADER_ADRESS); //헤더 주소 KERNEL_LOAD_ADDRESS+ALIGN(0x100064)
+		dd(KERNEL_LOAD_ADDRESS); //커널이 로드된 가상주소 공간
+		dd(00); //사용되지 않음
+		dd(00); //사용되지 않음
+		dd(HEADER_ADRESS + 0x20); //커널 시작 주소 : 멀티부트 헤더 주소 + 0x20, kernel_entry
+			
+		kernel_entry :
+		mov     esp, KERNEL_STACK; //스택 설정
+
+		push    0; //플래그 레지스터 초기화
+		popf
+
+		//GRUB에 의해 담겨 있는 정보값을 스택에 푸쉬한다.
+		push    ebx; //멀티부트 구조체 포인터
+		push    eax; //매직 넘버
+
+		//위의 두 파라메터와 함께 kmain 함수를 호출한다.
+		call    kmain; //C++ 메인 함수 호출
+
+		//루프를 돈다. kmain이 리턴되지 않으면 아래 코드는 수행되지 않는다.
+		halt:
+		jmp halt;
+	}
+}
+
+void InitializeConstructor()
+{
+	//내부 구현은 나중에 추가한다.
+}
+
+void kmain(unsigned long magic, unsigned long addr)
+{
+	InitializeConstructor(); //글로벌 객체 초기화
+
+	SkyConsole::Initialize(); //화면에 문자열을 찍기 위해 초기화한다.
+
+	SkyConsole::Print("Hello World!!\n");
+
+	for (;;); //메인함수의 진행을 막음, 루프
+}
