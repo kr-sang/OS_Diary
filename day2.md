@@ -23,3 +23,6 @@ SET QEMU_AUDIO_LOG_TO_MONITOR=0
 qemu-system-x86_64.exe -L . -m 128 -fda skyOS3.ima -soundhw sb16,es1370 -localtime -M pc
 
 이후 cmd에서 실행하여 올바른 결과를 얻어냈다.
+
+결국 오늘 한 일을 정리하면,
+GRUB이 커널을 로드하는 과정을 알아보았고 가상 이미지에 GRUB을 설치하여 커널을 실제로 실행해 보았다.
