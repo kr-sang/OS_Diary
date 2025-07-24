@@ -18,6 +18,17 @@ _declspec(naked) void multiboot_entry(void){} 형태로 진행된다. 이 함수
 
 kmain.cpp 코드는 아래와 같다.
 위에서 말한대로 multiboot_entry함수가 어셈블리어로 작성되어 있고(이 부분은 order.txt에서 0x100400에 위치하도록 조정) 그 아래에 기능 함수와 kmain함수가 위치한다.
+
+kermel load address : 0x100000
+align : 0x400
+-> PE를 기술하기 위한 헤더가 선두에 있어야 해서 400 존재. 그럼에도 80KB(제약조건) 안에 들어가도록 0x400 즉 1024B(1KB). 
+이러한 조정을 위해 order.txt파일에서 ?multiboot_entry@@YAXXZ 를 추가하여 vs 컴파일러가 이 함수를 선두에 배치시키도록 한다.
+header address : 0x100400 -> multiboot entry
+
+멀티부트 엔트리 함수를 찾았으니 grub이 헤더 크기만큼 건너뛰고 kernel_entry 레이블에서부터 코드를 실행. 
+
+커널 엔트리 어셈블리 코드... 이 모든 코드들은 어디에 존재하는 거지? 그냥 디스크가 골라지면 그 디스크의 극초반에 위치한 정보들인건가?
+
 kmain에서는 글로벌 객체를 초기화하는 함수를 실행하고(이는 뒷 내용에서 학습한다. 지금은 GRUB의 제약조건에 맞추어 80KB 이내에서 시그니처를 찾아야 하는데 글로벌 변수 사용 시 주소가 밀리기 때문.), SkyConsole이라는 개체에서 정의되는 함수인 initialize와 print를 실행하여 콘솔창에 Hello world를 띄운다.
 
 	#include "kmain.h"
