@@ -62,3 +62,7 @@ C++ 알고리즘 및 기타 지식 메모장
             // 사용 예시 : 좌변은 Mysingleton class의 참조로 singleton이라는 별명을 짓는 것. 우변은 class에서 getInstance()함수 실행. 이를 통해 우변은 싱글톤 객체 참조를 반환. 즉, singleton은 클래스 인스턴스를 직접 가리키며, instance 그 자체의 다른 이름(별명)이라고 생각하면 된다.
             MySingleton& singleton = MySingleton::getInstance();
             singleton.someMethod();   //instance의 별명이니까, singleton은 Mysingleton 객체이고, 그 객체의 함수가 실행되는 것.
+
+9. C/C++에서 포인터 사용 시 특징
+    static ushort* m_pVideoMemory; 와 같이 정의된 포인터 변수가 있고, 해당 주소부터 이후 주소들이 가리키는 값을 순차적으로 옮기고 싶다면, *(m_pVideoMemory + i) = 값;을 사용해도 되지만 아래와 같이 array로 써도 된다.
+    m_pVideoMemory[i] = (ushort)(0x20 | (m_Color << 8));
